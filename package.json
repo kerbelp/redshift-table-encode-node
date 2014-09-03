@@ -1,0 +1,9 @@
+{
+  "name": "redshift-table-encode",
+  "version": "0.0.1",
+  "dependencies": {
+    "async": "*",
+    "pg": "*",
+    "lodash": "^2.4.1"
+  }
+}
