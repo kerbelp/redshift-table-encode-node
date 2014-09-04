@@ -14,7 +14,7 @@ and do the following steps:
   2. analyze copmpression - to get the recommended encoding to all columns
   3. get current status of columns
   4. filter only the columns that are not encoded
-  5. encode every column separately:\n
+  5. encode every column separately:<br>
       5.1 create a new encoded column with a temp name
       5.2 update the new column with all the data from the original column
       5.3 drop the original column
