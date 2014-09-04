@@ -14,11 +14,11 @@
  *
  */
 
-var async = require("async");
-var _ = require("lodash");
-//var util = require('util');
+var async = require('async');
+var _ = require('lodash');
+var util = require('util');
 
-var redshift = require("./redshift");
+var redshift = require('./redshift');
 
 
 var redshift_table_encode = function(){};
@@ -26,18 +26,57 @@ var redshift_table_encode = function(){};
 /**
  * options should be in this format:
  {
-     "schema": "",
-     "table": "",
-     "connectionString": "",
-     "password": only required if contains ":"
+     'schema': '',
+     'table': '',
+     'connectionString': '',
+     'password': only required if contains ':'
  }
  */
-redshift_table_encode.prototype.encode = function(options, parentCallback){
+redshift_table_encode.prototype.tabularEncode = function(options, parentCallback){
     var self = this;
 
     if (!options.schema || !options.table || !options.connectionString) {
-        return parentCallback("Error: missing one of the following fields:" +
-            " schema, table or connectionString");
+        return parentCallback('Error: missing one of the following fields:' +
+            ' schema, table or connectionString');
+    }
+
+    async.waterfall([
+        function connectToRedshift(callback){
+            redshift.connect(options, callback);
+        },
+        function runAnalyzeCompression(connection, callback){
+            redshift.analyzeCompression(options, callback);
+        },
+        function getTableCurrentDetails(encodingRecommendation, callback){
+            redshift.getTableDetails(options, function(err, result) {
+                if (err) {
+                    callback(err);
+                } else{
+                    callback(null, encodingRecommendation, result);
+                }
+            });
+        },
+        function startEncodeWholeTable(encodingRecommendation, tableDetails, callback){
+            self.changeColumnEncoding(encodingRecommendation,tableDetails);
+
+            redshift.runEncodeTable(options, encodingRecommendation,
+                tableDetails, callback);
+        }
+    ], function(err, data){
+        if (err) {
+            parentCallback(err);
+        } else {
+            parentCallback(null, 'finished encoding');
+        }
+    });
+};
+
+redshift_table_encode.prototype.columnarEncode = function(options, parentCallback){
+    var self = this;
+
+    if (!options.schema || !options.table || !options.connectionString) {
+        return parentCallback('Error: missing one of the following fields:' +
+            ' schema, table or connectionString');
     }
 
     async.waterfall([
@@ -58,16 +97,16 @@ redshift_table_encode.prototype.encode = function(options, parentCallback){
         },
         function findColumnsToEncode(encodingRecommendation, tableDetails, callback){
 
-            console.log("-----------");
-            console.log("total columns:" + encodingRecommendation.length);
+            console.log('-----------');
+            console.log('total columns:' + encodingRecommendation.length);
 
             var columns = self.filterColumnsToEncode(encodingRecommendation, tableDetails);
             callback(null, columns);
         },
         function iterateOverColumnsAndEncode(columns, encodeTableCallback){
-            console.log("-----------");
-            console.log("total columns to encode: " + columns.length);
-            console.log("-----------");
+            console.log('-----------');
+            console.log('total columns to encode: ' + columns.length);
+            console.log('-----------');
             async.eachSeries(columns, function(column, callback){
                 redshift.runEncodeColumn(column, callback);
             }, function(err){
@@ -82,9 +121,22 @@ redshift_table_encode.prototype.encode = function(options, parentCallback){
         if (err) {
             parentCallback(err);
         } else {
-            parentCallback(null, "finished encoding all columns");
+            parentCallback(null, 'finished encoding all columns');
         }
     });
+};
+
+redshift_table_encode.prototype.changeColumnEncoding = function(recommended, current){
+
+    _(recommended).forEach(function(recommendedColumnData){
+        var column = _.findWhere(current, function(currentColumnData){
+            return recommendedColumnData.column === currentColumnData.column;
+        });
+        if (column) {
+            column.encoding = recommendedColumnData.encoding;
+        }
+    });
+
 };
 
 redshift_table_encode.prototype.filterColumnsToEncode = function(recommended, current){
