@@ -10,13 +10,13 @@ with the recommendation from ANALYZE COMPRESSION command.
 ways:<br><br>
 A. tabularEncode -<br><br> useful for first time encoding (most of the columns are not encoded)
     encode the whole table with the following steps:<br>
-    1. connect to redshift using pg - should be in this format:<br>
+  1. connect to redshift using pg - should be in this format:<br>
             postgres://USER:PASSWORD@DOMAIN-OF-REDSHIFT:PORT/DBNAME?tcpKeepAlive=true<br>
-    2. analyze copmpression - to get the recommended encoding to all columns<br>
-    3. create new temp table with the encoded columns<br>
-    4. insert all the data from the table to the temp table<br>
-    5. drop the not encoded table<br>
-    6. rename the temp table to the original name<br>
+  2. analyze copmpression - to get the recommended encoding to all columns<br>
+  3. create new temp table with the encoded columns<br>
+  4. insert all the data from the table to the temp table<br>
+  5. drop the not encoded table<br>
+  6. rename the temp table to the original name<br>
 
 
 
