@@ -7,9 +7,9 @@ Best Practice when using Amazon Redshift is to have your columns encoded
 with the recommendation from ANALYZE COMPRESSION command.
 
 "redshift_table_encode" is a module that is used to encode the table in two
-ways:<br>
-A. tabularEncode - useful for first time encoding (most of the columns are not encoded)
-    encode the whole table with the following steps:
+ways:<br><br>
+A. tabularEncode -<br><br> useful for first time encoding (most of the columns are not encoded)
+    encode the whole table with the following steps:<br>
     1. connect to redshift using pg - should be in this format:<br>
             postgres://USER:PASSWORD@DOMAIN-OF-REDSHIFT:PORT/DBNAME?tcpKeepAlive=true<br>
     2. analyze copmpression - to get the recommended encoding to all columns<br>
@@ -20,7 +20,7 @@ A. tabularEncode - useful for first time encoding (most of the columns are not e
 
 
 
-B. columnarEncode<br>
+B. columnarEncode<br><br>
 
   1. connect to redshift using pg - should be in this format:
            postgres://USER:PASSWORD@DOMAIN-OF-REDSHIFT:PORT/DBNAME?tcpKeepAlive=true
