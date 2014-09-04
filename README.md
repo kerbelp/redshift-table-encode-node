@@ -15,10 +15,10 @@ and do the following steps:
   3. get current status of columns
   4. filter only the columns that are not encoded
   5. encode every column separately:<br>
-      5.1 create a new encoded column with a temp name
-      5.2 update the new column with all the data from the original column
-      5.3 drop the original column
-      5.4 rename new column to original name
+      5.1 create a new encoded column with a temp name<br>
+      5.2 update the new column with all the data from the original column<br>
+      5.3 drop the original column<br>
+      5.4 rename new column to original name<br>
 
 I'm open to suggestions, code reviews and contributions :)
 
